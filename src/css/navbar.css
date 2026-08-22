@@ -1,0 +1,166 @@
+:root{
+    --bg:#1A1A24;
+    --navbar:#15151C;
+    --card:#1D1D27;
+
+    --primary:#7C3AED;
+    --primary-hover:#8B5CF6;
+
+    --text:#FFFFFF;
+    --text-secondary:#A1A1AA;
+
+    --border:#2D2D38;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar{
+    background: var(--navbar);
+    padding: 1rem 2rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+
+.navbar-brand{
+    font-size:1.5rem;
+    font-weight:bold;
+}
+
+.navbar-links{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+}
+
+/* =========================
+   GENRE DROPDOWN
+========================= */
+
+.genre-dropdown{
+    padding:8px 14px;
+    font-size:15px;
+    background:var(--primary);
+    color:white;
+    border:1px solid var(--border);
+    border-radius:8px;
+    cursor:pointer;
+    outline:none;
+    transition:.3s;
+}
+
+.genre-dropdown:hover{
+    border-color:var(--primary-hover);
+}
+
+.genre-dropdown:focus{
+    border-color:var(--primary-hover);
+    box-shadow:0 0 8px rgba(124,58,237,.5);
+}
+
+.genre-dropdown option{
+    background:var(--bg);
+    color:white;
+}
+
+/* =========================
+   MOVIE / TV BUTTONS
+========================= */
+
+.type-toggle{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.nav-btn{
+    padding:8px 18px;
+    background:transparent;
+    color:white;
+    border:2px solid transparent;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .25s ease;
+}
+
+.nav-btn:hover{
+    border-color:var(--primary);
+    background:rgba(124,58,237,.08);
+}
+
+.active-type{
+    border:2px solid var(--primary);
+    background:rgba(124,58,237,.15);
+    color:white;
+}
+
+/* =========================
+   LINKS
+========================= */
+
+.nav-link{
+    font-size:1rem;
+    padding:.5rem 1rem;
+    border-radius:4px;
+    transition:.2s;
+}
+
+.nav-link:hover{
+    background:rgba(255,255,255,.08);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+    .navbar{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:12px;
+        padding:12px;
+    }
+
+    .navbar-brand{
+        width:100%;
+        text-align:center;
+        font-size:1.2rem;
+    }
+
+    .navbar-links{
+        width:100%;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+    /* ---------- Mobile Navbar ---------- */
+
+@media (max-width: 768px) {
+
+    .type-toggle{
+        display:grid;
+        grid-template-columns:repeat(2, 1fr);
+        gap:10px;
+        width:100%;
+    }
+
+    .nav-btn{
+        width:100%;
+        justify-content:center;
+        text-align:center;
+        padding:12px;
+    }
+
+    .genre-dropdown{
+        width:100%;
+        margin-top:12px;
+    }
+
+}
+
+}

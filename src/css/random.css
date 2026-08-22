@@ -1,0 +1,273 @@
+:root{
+    --bg:#111114;
+    --card:#1b1b24;
+    --primary:#7C3AED;
+    --primary-hover:#8B5CF6;
+    --text:#ffffff;
+    --text-secondary:#c7c7c7;
+    --border:#2d2d38;
+}
+
+.random-card{
+    width:min(95%,1400px);
+    margin:40px auto;
+    background:var(--card);
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.45),
+        0 0 35px rgba(124,58,237,.15);
+}
+
+/* ===========================
+   HERO BACKDROP
+=========================== */
+
+.backdrop{
+    position:relative;
+    width:100%;
+    height:360px;
+}
+
+.backdrop img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.backdrop::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(to top,
+            var(--card) 0%,
+            rgba(27,27,36,.65) 40%,
+            rgba(27,27,36,.2) 100%);
+}
+
+/* ===========================
+   CONTENT
+=========================== */
+
+.content{
+    display:flex;
+    gap:40px;
+    align-items:flex-start;
+
+    padding:0 50px 50px;
+
+    margin-top:-250px;
+
+    position:relative;
+    z-index:2;
+}
+
+/* ===========================
+   POSTER
+=========================== */
+
+.poster{
+    flex-shrink:0;
+    padding-top: 130px;
+}
+
+.poster img{
+    width:240px;
+    border-radius:18px;
+    display:block;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.55);
+
+    transition:.3s;
+}
+
+.poster img:hover{
+    transform:scale(1.03);
+}
+
+/* ===========================
+   INFO
+=========================== */
+
+.info{
+    flex:1;
+
+    padding-top:135px;
+}
+
+.info h2{
+    color:white;
+    font-size:3.3rem;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.info p{
+    color:var(--text-secondary);
+    line-height:1.8;
+    font-size:1.08rem;
+    max-width:900px;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.buttons{
+    display:flex;
+    gap:16px;
+    margin-top:30px;
+    flex-wrap:wrap;
+}
+
+.play-btn,
+.trailer-btn{
+    padding:14px 32px;
+
+    border:none;
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-size:1rem;
+    font-weight:600;
+
+    transition:.25s;
+}
+
+.play-btn{
+    background:var(--primary);
+    color:white;
+}
+
+.play-btn:hover{
+    background:var(--primary-hover);
+    transform:translateY(-3px);
+    box-shadow:0 0 25px rgba(124,58,237,.4);
+}
+
+.trailer-btn{
+    background:rgba(255,255,255,.08);
+    color:white;
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(8px);
+}
+
+.trailer-btn:hover{
+    background:rgba(124,58,237,.15);
+    border-color:var(--primary);
+}
+.favorite-btn-random{
+    padding:12px 24px;
+    border:none;
+    border-radius:10px;
+    background:#2a2a2a;
+    color:white;
+    cursor:pointer;
+    font-size:1rem;
+    transition:0.25s;
+}
+
+.favorite-btn-random:hover{
+    background:#3a3a3a;
+}
+
+.favorite-btn-random.active{
+    background:#e63946;
+    color:white;
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media(max-width:1000px){
+
+    .content{
+        flex-direction:column;
+        align-items:center;
+
+        margin-top:-80px;
+
+        padding:0 30px 40px;
+    }
+
+    .poster img{
+        width:190px;
+    }
+
+    .info{
+        padding-top:20px;
+        text-align:center;
+    }
+
+    .info h2{
+        font-size:2.3rem;
+    }
+
+    .buttons{
+        justify-content:center;
+    }
+}
+
+@media(max-width:600px){
+
+    .backdrop{
+        height:250px;
+    }
+
+    .poster img{
+        width:160px;
+    }
+
+    .info h2{
+        font-size:1.9rem;
+    }
+
+    .info p{
+        font-size:.95rem;
+    }
+
+    .play-btn,
+    .trailer-btn{
+        width:100%;
+    }
+}
+.movie-meta{
+    display:flex;
+    gap:20px;
+    align-items:center;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+}
+
+.rating,
+.year,
+.votes{
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(8px);
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:0.95rem;
+    font-weight:600;
+}
+
+.rating{
+    color:#FFD700;
+}
+
+.year{
+    color:#ffffff;
+}
+
+.votes{
+    color:#bdbdbd;
+}
+
+.genres{
+    color:#b8b8b8;
+    margin-bottom:18px;
+    font-size:0.95rem;
+}

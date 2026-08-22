@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">A2ZMovies</string>
+    <string name="title_activity_main">A2ZMovies</string>
+    <string name="package_name">com.a2zmovies.app</string>
+    <string name="custom_url_scheme">com.a2zmovies.app</string>
+</resources>
