@@ -20,7 +20,8 @@ function TVCard({ tv }) {
 
     return (
         <>
-            <div className="Movie-card">
+            <div className="Movie-card tv-focusable"
+    tabIndex={0}>
                 <Link to={`/tv/${tv.id}`}>
                     <div className="movie-poster">
 

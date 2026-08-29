@@ -59,7 +59,8 @@ function WatchHistory() {
                 {history.slice(0, 10).map((item) => (
 
                     <div
-                        className="history-card"
+                        className="history-card tv-focusable"
+    tabIndex={0}
                         key={`${item.media_type}-${item.id}`}
                     >
 

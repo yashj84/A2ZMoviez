@@ -201,3 +201,8 @@
     gap:20px;
     justify-content:center;
 }
+
+.tv-focusable:focus {
+    outline: 3px solid #7C3AED;
+    outline-offset: 4px;
+}

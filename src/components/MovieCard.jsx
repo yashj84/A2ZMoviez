@@ -43,7 +43,8 @@ function MovieCard ({movie}){
     
     return (
         <>
-    <div className="Movie-card">
+    <div className="Movie-card tv-focusable"
+    tabIndex={0}>
         <Link to={`/movie/${movie.id}`}>
         <div className="movie-poster">
             

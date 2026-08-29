@@ -1,7 +1,7 @@
 import MovieCard from "../MovieCard";
 import TVCard from "../TVCard";
 import WatchHistory from "../WatchHistory";
-
+import useTVNavigation from "../../hooks/useTVNavigation";
 import { useState, useEffect } from "react";
 
 import {
@@ -22,6 +22,7 @@ function Home({
 }) {
 
     const navigate = useNavigate();
+    useTVNavigation();
 
 
     // ==========================================
@@ -126,113 +127,113 @@ function Home({
 
                 if (selectedGenre === "") {
 
-    data = await getPopular("multi", page);
+                    data = await getPopular("multi", page);
 
-    const results = data.results || [];
+                    const results = data.results || [];
 
-    const today = new Date()
-        .toISOString()
-        .split("T")[0];
-
-
-    // ==========================================
-    // Filter content
-    // Movies → released only
-    // TV → keep everything
-    // ==========================================
-
-    const filteredResults = results.filter((item) => {
-
-        // Only movies and TV
-        if (
-            item.media_type !== "movie" &&
-            item.media_type !== "tv"
-        ) {
-            return false;
-        }
+                    const today = new Date()
+                        .toISOString()
+                        .split("T")[0];
 
 
-        // TV shows:
-        // Keep old, current and upcoming shows
-        if (item.media_type === "tv") {
-            return true;
-        }
+                    // ==========================================
+                    // Filter content
+                    // Movies → released only
+                    // TV → keep everything
+                    // ==========================================
+
+                    const filteredResults = results.filter((item) => {
+
+                        // Only movies and TV
+                        if (
+                            item.media_type !== "movie" &&
+                            item.media_type !== "tv"
+                        ) {
+                            return false;
+                        }
 
 
-        // Movies:
-        // Only show released movies
-        if (item.media_type === "movie") {
-
-            if (!item.release_date) {
-                return false;
-            }
-
-            return item.release_date <= today;
-        }
+                        // TV shows:
+                        // Keep old, current and upcoming shows
+                        if (item.media_type === "tv") {
+                            return true;
+                        }
 
 
-        return false;
+                        // Movies:
+                        // Only show released movies
+                        if (item.media_type === "movie") {
 
-    });
+                            if (!item.release_date) {
+                                return false;
+                            }
 
-
-    // ==========================================
-    // Trending Hero Carousel
-    // ==========================================
-
-    if (page === 1) {
-
-        const carouselItems =
-            filteredResults
-                .filter(item => item.backdrop_path)
-                .slice(0, 5);
+                            return item.release_date <= today;
+                        }
 
 
-        setHeroItems(carouselItems);
+                        return false;
 
-        setHeroIndex(0);
-
-    }
+                    });
 
 
-    // ==========================================
-    // Homepage Grid
-    // ==========================================
+                    // ==========================================
+                    // Trending Hero Carousel
+                    // ==========================================
 
-    setMovies(filteredResults);
+                    if (page === 1) {
 
-}
+                        const carouselItems =
+                            filteredResults
+                                .filter(item => item.backdrop_path)
+                                .slice(0, 5);
+
+
+                        setHeroItems(carouselItems);
+
+                        setHeroIndex(0);
+
+                    }
+
+
+                    // ==========================================
+                    // Homepage Grid
+                    // ==========================================
+
+                    setMovies(filteredResults);
+
+                }
 
 
                 // ==================================
                 // Genre
                 // ==================================
 
-               else {
+                else {
 
-    data = await showGenreMovies(
-        selectedGenre,
-        page
-    );
+                    data = await showGenreMovies(
+                        selectedGenre,
+                        page
+                    );
 
-    const genreResults =
-        data.results || data || [];
+                    const genreResults =
+                        data.results || data || [];
 
-    // TMDB discover/movie doesn't return
-    // media_type, so add it manually
-    const genreMovies = genreResults.map(
-        item => ({
-            ...item,
-            media_type: "movie"
-        })
-    );
+                    // TMDB discover/movie doesn't return
+                    // media_type, so add it manually
+                    const genreMovies = genreResults.map(
+                        item => ({
+                            ...item,
+                            media_type: "movie"
+                        })
+                    );
 
-    setMovies(genreMovies);
+                    setMovies(genreMovies);
 
-    // Hide hero while browsing genre
-    setHeroItems([]);
-    setHeroIndex(0);
-}
+                    // Hide hero while browsing genre
+                    setHeroItems([]);
+                    setHeroIndex(0);
+                }
 
 
                 setError(null);
@@ -526,7 +527,7 @@ function Home({
 
                                                 {
                                                     item.media_type ===
-                                                    "movie"
+                                                        "movie"
                                                         ? "🎬 Movie"
                                                         : "📺 TV Show"
                                                 }
@@ -635,7 +636,7 @@ function Home({
 
                                     {
                                         currentHero.media_type ===
-                                        "movie"
+                                            "movie"
                                             ? "🎬 Movie"
                                             : "📺 TV Show"
                                     }
@@ -677,7 +678,8 @@ function Home({
                             <div className="hero-actions">
 
                                 <button
-                                    className="hero-watch-btn"
+                                    className="hero-watch-btn tv-focusable"
+                                    tabIndex={0}
                                     onClick={() =>
                                         openHero(
                                             currentHero
@@ -689,7 +691,8 @@ function Home({
 
 
                                 <button
-                                    className="hero-info-btn"
+                                    className="hero-info-btn tv-focusable"
+                                    tabIndex={0}
                                     onClick={() =>
                                         openHero(
                                             currentHero
@@ -711,7 +714,8 @@ function Home({
                         {heroItems.length > 1 && (
 
                             <button
-                                className="hero-arrow hero-prev"
+                                className="hero-arrow hero-prev tv-focusable"
+    tabIndex={0}
                                 onClick={
                                     previousHero
                                 }
@@ -730,7 +734,8 @@ function Home({
                         {heroItems.length > 1 && (
 
                             <button
-                                className="hero-arrow hero-next"
+                                className="hero-arrow hero-next tv-focusable"
+    tabIndex={0}
                                 onClick={
                                     nextHero
                                 }
@@ -756,10 +761,9 @@ function Home({
                                         <button
                                             key={item.id}
                                             className={
-                                                `hero-dot ${
-                                                    index === heroIndex
-                                                        ? "active"
-                                                        : ""
+                                                `hero-dot ${index === heroIndex
+                                                    ? "active"
+                                                    : ""
                                                 }`
                                             }
                                             onClick={() =>
@@ -768,8 +772,7 @@ function Home({
                                                 )
                                             }
                                             aria-label={
-                                                `Go to slide ${
-                                                    index + 1
+                                                `Go to slide ${index + 1
                                                 }`
                                             }
                                         />
