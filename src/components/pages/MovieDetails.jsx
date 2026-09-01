@@ -319,6 +319,9 @@ function MovieDetails() {
                     allowFullScreen
                     allow="encrypted-media"
                     title="Movie Player"
+                    onLoad={() => {
+                        iframeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
                 />
 
                 <div className="controls">

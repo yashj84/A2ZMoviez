@@ -388,6 +388,9 @@ return (
                 allowFullScreen
                 allow="encrypted-media"
                 title="TV Player"
+                onLoad={() => {
+                    iframeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
             />
 
 
