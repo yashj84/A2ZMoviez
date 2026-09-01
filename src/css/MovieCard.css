@@ -1,6 +1,6 @@
 .Movie-card {
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   background-color: #1a1a1a;
   transition: transform 0.2s ease;

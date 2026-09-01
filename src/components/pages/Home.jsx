@@ -59,6 +59,14 @@ function Home({
 
 
     // ==========================================
+    // Reset page when search query changes
+    // ==========================================
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery]);
+
+
+    // ==========================================
     // Search Suggestions
     // ==========================================
 
@@ -93,6 +101,7 @@ function Home({
 
                 }
 
+
             },
             300
         );
@@ -114,125 +123,150 @@ function Home({
 
             setLoading(true);
 
-            setIsSearching(false);
-
             try {
 
                 let data;
 
-
                 // ==================================
-                // Homepage / Trending
+                // Search
                 // ==================================
+                if (searchQuery.trim() !== "") {
+                    setIsSearching(true);
+                    data = await searchMedia(searchQuery, page);
 
-                if (selectedGenre === "") {
+                    // Update movies with search results
+                    const filteredResults = data.results || [];
+                    setMovies(filteredResults);
 
-                    data = await getPopular("multi", page);
-
-                    const results = data.results || [];
-
-                    const today = new Date()
-                        .toISOString()
-                        .split("T")[0];
-
-
-                    // ==========================================
-                    // Filter content
-                    // Movies → released only
-                    // TV → keep everything
-                    // ==========================================
-
-                    const filteredResults = results.filter((item) => {
-
-                        // Only movies and TV
-                        if (
-                            item.media_type !== "movie" &&
-                            item.media_type !== "tv"
-                        ) {
-                            return false;
-                        }
-
-
-                        // TV shows:
-                        // Keep old, current and upcoming shows
-                        if (item.media_type === "tv") {
-                            return true;
-                        }
-
-
-                        // Movies:
-                        // Only show released movies
-                        if (item.media_type === "movie") {
-
-                            if (!item.release_date) {
-                                return false;
-                            }
-
-                            return item.release_date <= today;
-                        }
-
-
-                        return false;
-
-                    });
-
-
-                    // ==========================================
-                    // Trending Hero Carousel
-                    // ==========================================
-
+                    // Update hero items for search (optional, but consistent)
                     if (page === 1) {
-
                         const carouselItems =
                             filteredResults
                                 .filter(item => item.backdrop_path)
                                 .slice(0, 5);
 
-
                         setHeroItems(carouselItems);
-
                         setHeroIndex(0);
+                    }
+                } else {
+                    setIsSearching(false);
+
+                    // ==================================
+                    // Homepage / Trending
+                    // ==================================
+
+                    if (selectedGenre === "") {
+
+                        data = await getPopular("multi", page);
+
+                        const results = data.results || [];
+
+                        const today = new Date()
+                            .toISOString()
+                            .split("T")[0];
+
+
+                        // ==========================================
+                        // Filter content
+                        // Movies → released only
+                        // TV → keep everything
+                        // ==========================================
+
+                        const filteredResults = results.filter((item) => {
+
+                            // Only movies and TV
+                            if (
+                                item.media_type !== "movie" &&
+                                item.media_type !== "tv"
+                            ) {
+                                return false;
+                            }
+
+
+                            // TV shows:
+                            // Keep old, current and upcoming shows
+                            if (item.media_type === "tv") {
+                                return true;
+                            }
+
+
+                            // Movies:
+                            // Only show released movies
+                            if (item.media_type === "movie") {
+
+                                if (!item.release_date) {
+                                    return false;
+                                }
+
+                                return item.release_date <= today;
+                            }
+
+
+                            return false;
+
+                        });
+
+
+                        // ==========================================
+                        // Trending Hero Carousel
+                        // ==========================================
+
+                        if (page === 1) {
+
+                            const carouselItems =
+                                filteredResults
+                                    .filter(item => item.backdrop_path)
+                                    .slice(0, 5);
+
+
+                            setHeroItems(carouselItems);
+
+                            setHeroIndex(0);
+
+                        }
+
+
+                        // ==========================================
+                        // Homepage Grid
+                        // ==========================================
+
+                        setMovies(filteredResults);
+
 
                     }
 
 
-                    // ==========================================
-                    // Homepage Grid
-                    // ==========================================
+                    // ==================================
+                    // Genre
+                    // ==================================
 
-                    setMovies(filteredResults);
+                    else {
 
-                }
+                        data = await showGenreMovies(
+                            selectedGenre,
+                            page
+                        );
 
+                        const genreResults =
+                            data.results || data || [];
 
-                // ==================================
-                // Genre
-                // ==================================
+                        // TMDB discover/movie doesn't return
+                        // media_type, so add it manually
+                        const genreMovies = genreResults.map(
+                            item => ({
+                                ...item,
+                                media_type: "movie"
+                            })
+                        );
 
-                else {
+                        setMovies(genreMovies);
 
-                    data = await showGenreMovies(
-                        selectedGenre,
-                        page
-                    );
+                        // Hide hero while browsing genre
+                        setHeroItems([]);
+                        setHeroIndex(0);
 
-                    const genreResults =
-                        data.results || data || [];
+                    }
 
-                    // TMDB discover/movie doesn't return
-                    // media_type, so add it manually
-                    const genreMovies = genreResults.map(
-                        item => ({
-                            ...item,
-                            media_type: "movie"
-                        })
-                    );
-
-                    setMovies(genreMovies);
-
-                    // Hide hero while browsing genre
-                    setHeroItems([]);
-                    setHeroIndex(0);
                 }
 
 
@@ -260,7 +294,8 @@ function Home({
     }, [
         selectedGenre,
         resetHome,
-        page
+        page,
+        searchQuery
     ]);
 
 
@@ -289,71 +324,6 @@ function Home({
             clearInterval(timer);
 
     }, [heroItems]);
-
-
-    // ==========================================
-    // Search
-    // ==========================================
-
-    async function handleSearch(e) {
-
-        e.preventDefault();
-
-
-        if (!searchQuery.trim()) {
-            return;
-        }
-
-
-        if (loading) {
-            return;
-        }
-
-
-        setLoading(true);
-
-
-        try {
-
-            const searchResult =
-                await searchMedia(
-                    searchQuery
-                );
-
-
-            setMovies(
-                searchResult.results || []
-            );
-
-
-            // Hide carousel
-            setHeroItems([]);
-
-            setHeroIndex(0);
-
-            setIsSearching(true);
-
-            setError(null);
-
-        } catch (err) {
-
-            console.log(err);
-
-            setError(
-                "Failed to load search results"
-            );
-
-        } finally {
-
-            setLoading(false);
-
-            setSearchQuery("");
-
-            setSuggestions([]);
-
-        }
-
-    }
 
 
     // ==========================================
@@ -446,7 +416,11 @@ function Home({
             <div className="search-wrapper">
 
                 <form
-                    onSubmit={handleSearch}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setPage(1); // Reset to first page on form submit
+                        setSuggestions([]); // Clear search suggestions
+                    }}
                     className="search-form"
                 >
 
@@ -495,7 +469,6 @@ function Home({
                                                     : `/tv/${item.id}`
                                             );
 
-
                                             setSuggestions([]);
 
                                             setSearchQuery("");
@@ -524,14 +497,12 @@ function Home({
 
 
                                             <p>
-
                                                 {
                                                     item.media_type ===
                                                         "movie"
                                                         ? "🎬 Movie"
                                                         : "📺 TV Show"
                                                 }
-
                                             </p>
 
                                         </div>
@@ -544,6 +515,7 @@ function Home({
                         </div>
 
                     )}
+
 
                 </form>
 
@@ -715,7 +687,7 @@ function Home({
 
                             <button
                                 className="hero-arrow hero-prev tv-focusable"
-    tabIndex={0}
+                                tabIndex={0}
                                 onClick={
                                     previousHero
                                 }
@@ -735,7 +707,7 @@ function Home({
 
                             <button
                                 className="hero-arrow hero-next tv-focusable"
-    tabIndex={0}
+                                tabIndex={0}
                                 onClick={
                                     nextHero
                                 }
@@ -863,7 +835,6 @@ function Home({
 
                         {movies.map((item) => {
 
-
                             // Ignore unsupported results
 
                             if (
@@ -943,9 +914,7 @@ function Home({
                                 )
                             }
                         >
-
                             Previous
-
                         </button>
 
 
@@ -963,9 +932,7 @@ function Home({
                                 )
                             }
                         >
-
                             Next
-
                         </button>
 
                     </div>
@@ -974,11 +941,12 @@ function Home({
 
             )}
 
+
         </div>
 
     );
 
-}
 
+}
 
 export default Home;

@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";import { useState, useEffect, useRef } from "react";import "../../css/MovieDetails.css";import { getTVDetails, getSeasonDetails } from "../../services/api";import { providers } from "../../services/providers";
+import { useParams } from "react-router-dom";import { useState, useEffect, useRef } from "react";import "../../css/MovieDetails.css";import { getTVDetails, getSeasonDetails, getTVRecommendations } from "../../services/api";import { providers } from "../../services/providers";
+import TVCard from "../../components/TVCard";
 
 function TVDetails() {
 
@@ -13,6 +14,7 @@ const [episode, setEpisode] = useState(1);
 const [tvDetails, setTVDetails] = useState(null);
 const [seasons, setSeasons] = useState([]);
 const [episodes, setEpisodes] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
 
 const [selectedProvider, setSelectedProvider] =
     useState("vidfast");
@@ -61,6 +63,7 @@ setHistoryLoaded(true);
 
 }, [id]);
 
+
 // ==========================================
 // Load TV Details
 // ==========================================
@@ -105,6 +108,7 @@ useEffect(() => {
 
             setEpisodes(
                 data.episodes || []
+
             );
 
         } catch (err) {
@@ -200,11 +204,9 @@ useEffect(() => {
 
     if (!tvDetails) return;
 
-
     function handlePlayerMessage(event) {
 
         const data = event.data;
-
 
         console.log(
             "MESSAGE FROM TV PLAYER:",
@@ -260,12 +262,10 @@ useEffect(() => {
 
     }
 
-
     window.addEventListener(
         "message",
         handlePlayerMessage
     );
-
 
     return () => {
 
@@ -286,7 +286,6 @@ useEffect(() => {
 useEffect(() => {
 
     if (!tvDetails) return;
-
 
     const requestStatus = () => {
 
@@ -325,10 +324,29 @@ useEffect(() => {
     return () => {
 
         clearInterval(interval);
-
     };
 
 }, [tvDetails, TV_URL]);
+
+
+// ==========================================
+// Fetch TV Recommendations
+// ==========================================
+
+useEffect(() => {
+    if (!tvDetails) return;
+
+    async function loadRecommendations() {
+        try {
+            const data = await getTVRecommendations(id);
+            setRecommendations(data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    loadRecommendations();
+}, [id, tvDetails]);
 
 
 // ==========================================
@@ -351,164 +369,163 @@ if (!tvDetails) {
 // ==========================================
 
 return (
+    <>
+        <div className="tv-details">
 
-    <div className="tv-details">
-
-
-        <h1>
-            {tvDetails.name}
-        </h1>
-
-
-        {/* ================================
-            Video Player
-        ================================= */}
-
-        <iframe
-            ref={iframeRef}
-            className="movie-player"
-            src={TV_URL}
-            frameBorder="0"
-            allowFullScreen
-            allow="encrypted-media"
-            title="TV Player"
-        />
+            <h1>
+                {tvDetails.name}
+            </h1>
 
 
-        {/* ================================
-            Controls
-        ================================= */}
+            {/* ================================
+                Video Player
+            ================================= */}
+            <iframe
+                ref={iframeRef}
+                className="movie-player"
+                src={TV_URL}
+                frameBorder="0"
+                allowFullScreen
+                allow="encrypted-media"
+                title="TV Player"
+            />
 
-        <div className="controls">
 
+            {/* ================================
+                Controls
+            ================================= */}
+            <div className="controls">
 
-            {/* Season */}
+                {/* Season */}
+                <div className="control">
 
-            <div className="control">
+                    <label>
+                        Season
+                    </label>
 
-                <label>
-                    Season
-                </label>
+                    <select
+                        value={season}
+                        onChange={(e) => {
 
-                <select
-                    value={season}
-                    onChange={(e) => {
+                            setSeason(
+                                Number(e.target.value)
+                            );
 
-                        setSeason(
-                            Number(e.target.value)
-                        );
+                            // Start new season at episode 1
+                            setEpisode(1);
 
-                        // Start new season at episode 1
-                        setEpisode(1);
+                        }}
+                    >
 
-                    }}
-                >
+                        {seasons
+                            .filter(
+                                item =>
+                                    item.season_number > 0
+                            )
+                            .map((item) => (
 
-                    {seasons
-                        .filter(
-                            item =>
-                                item.season_number > 0
-                        )
-                        .map((item) => (
+                                <option
+                                    key={item.id}
+                                    value={
+                                        item.season_number
+                                    }
+                                >
+                                    Season{" "}
+                                    {item.season_number}
+                                </option>
+
+                            ))}
+                    </select>
+
+                </div>
+
+                {/* Episode */}
+                <div className="control">
+
+                    <label>
+                        Episode
+                    </label>
+
+                    <select
+                        value={episode}
+                        onChange={(e) =>
+                            setEpisode(
+                                Number(e.target.value)
+                            )
+                        }
+                    >
+
+                        {episodes.map((item) => (
 
                             <option
                                 key={item.id}
                                 value={
-                                    item.season_number
+                                    item.episode_number
                                 }
                             >
-                                Season{" "}
-                                {item.season_number}
+                                Episode{" "}
+                                {item.episode_number}
                             </option>
 
                         ))}
+                    </select>
 
-                </select>
+                </div>
 
-            </div>
+                {/* Provider */}
+                <div className="control">
 
+                    <label>
+                        Provider
+                    </label>
 
-            {/* Episode */}
+                    <select
+                        value={selectedProvider}
+                        onChange={(e) =>
+                            setSelectedProvider(
+                                e.target.value
+                            )
+                        }
+                    >
 
-            <div className="control">
+                        {Object.keys(providers).map(
+                            (key) => (
 
-                <label>
-                    Episode
-                </label>
+                                <option
+                                    key={key}
+                                    value={key}
+                                >
+                                    {
+                                        providers[key]
+                                            .name
+                                    }
+                                </option>
 
-                <select
-                    value={episode}
-                    onChange={(e) =>
-                        setEpisode(
-                            Number(e.target.value)
-                        )
-                    }
-                >
+                            )
+                        )}
+                    </select>
 
-                    {episodes.map((item) => (
-
-                        <option
-                            key={item.id}
-                            value={
-                                item.episode_number
-                            }
-                        >
-                            Episode{" "}
-                            {item.episode_number}
-                        </option>
-
-                    ))}
-
-                </select>
-
-            </div>
-
-
-            {/* Provider */}
-
-            <div className="control">
-
-                <label>
-                    Provider
-                </label>
-
-                <select
-                    value={selectedProvider}
-                    onChange={(e) =>
-                        setSelectedProvider(
-                            e.target.value
-                        )
-                    }
-                >
-
-                    {Object.keys(providers).map(
-                        (key) => (
-
-                            <option
-                                key={key}
-                                value={key}
-                            >
-                                {
-                                    providers[key]
-                                        .name
-                                }
-                            </option>
-
-                        )
-                    )}
-
-                </select>
+                </div>
 
             </div>
-
-
         </div>
-
-
-    </div>
-
+        {/* ================================
+            Recommended for You
+        ================================= */}
+        <div className="recommendations">
+            <h2>Recommended for You</h2>
+            <div className="recommendations-list">
+                {recommendations.length > 0 ? (
+                    recommendations.map((tv) => (
+                        <TVCard key={tv.id} tv={tv} />
+                    ))
+                ) : (
+                    <p>Loading recommendations...</p>
+                )}
+            </div>
+        </div>
+    </>
 );
-
 }
 
 export default TVDetails;

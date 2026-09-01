@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "../../css/MovieDetails.css";
 import { providers } from "../../services/providers";
-import { getMovieDetails } from "../../services/api";
+import { getMovieDetails, getMovieRecommendations } from "../../services/api";
 import { useMovieContex } from "../../context/MovieContext";
+import MovieCard from "../../components/MovieCard";
 
 function MovieDetails() {
 
@@ -11,20 +12,21 @@ function MovieDetails() {
 
     const [selectedProvider, setSelectedProvider] = useState("vidfast");
     const [movieDetails, setMovieDetails] = useState(null);
+    const [recommendations, setRecommendations] = useState([]);
 
     const iframeRef = useRef(null);
 
     const playerUrl = providers[selectedProvider].movie(id);
 
     const {
-    addToFavorites,
-    removeFavorites,
-    isFavorites
-} = useMovieContex();
+        addToFavorites,
+        removeFavorites,
+        isFavorites
+    } = useMovieContex();
 
     const favorite = movieDetails
-    ? isFavorites(movieDetails.id)
-    : false;
+        ? isFavorites(movieDetails.id)
+        : false;
 
 
     // ==========================================
@@ -119,7 +121,6 @@ function MovieDetails() {
 
         if (!movieDetails) return;
 
-
         function handlePlayerMessage(event) {
 
             const data = event.data;
@@ -181,12 +182,10 @@ function MovieDetails() {
 
         }
 
-
         window.addEventListener(
             "message",
             handlePlayerMessage
         );
-
 
         return () => {
 
@@ -210,15 +209,11 @@ function MovieDetails() {
 
 
         const requestStatus = () => {
-
             if (!iframeRef.current) {
-
                 console.log(
                     "Iframe not ready"
                 );
-
                 return;
-
             }
 
 
@@ -233,7 +228,6 @@ function MovieDetails() {
                 },
                 "*"
             );
-
         };
 
 
@@ -244,12 +238,29 @@ function MovieDetails() {
 
 
         return () => {
-
             clearInterval(interval);
-
         };
-
     }, [movieDetails, playerUrl]);
+
+
+    // ==========================================
+    // Fetch Movie Recommendations
+    // ==========================================
+
+    useEffect(() => {
+        if (!movieDetails) return;
+
+        async function loadRecommendations() {
+            try {
+                const data = await getMovieRecommendations(id);
+                setRecommendations(data);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        loadRecommendations();
+    }, [id, movieDetails]);
 
 
     // ==========================================
@@ -257,104 +268,111 @@ function MovieDetails() {
     // ==========================================
 
     return (
+        <>
+            <div className="movie-details">
+                <div className="details-header">
 
-        <div className="movie-details">
-            <div className="details-header">
+                    <h2>
+                        {movieDetails
+                            ? movieDetails.title
+                            : "Loading..."}
+                    </h2>
 
-    <h2>
-        {movieDetails
-            ? movieDetails.title
-            : "Loading..."}
-    </h2>
+                    {movieDetails && (
+                        <button
+                            className={`details-favorite-btn ${
+                                favorite ? "active" : ""
+                            }`}
+                            onClick={() => {
 
-    {movieDetails && (
-        <button
-            className={`details-favorite-btn ${
-                favorite ? "active" : ""
-            }`}
-            onClick={() => {
+                                if (favorite) {
 
-                if (favorite) {
+                                    removeFavorites(
+                                        movieDetails.id
+                                    );
 
-                    removeFavorites(
-                        movieDetails.id
-                    );
+                                } else {
 
-                } else {
+                                    addToFavorites({
+                                        id: movieDetails.id,
+                                        title: movieDetails.title,
+                                        poster_path:
+                                            movieDetails.poster_path,
+                                        media_type: "movie"
+                                    });
 
-                    addToFavorites({
-                        id: movieDetails.id,
-                        title: movieDetails.title,
-                        poster_path:
-                            movieDetails.poster_path,
-                        media_type: "movie"
-                    });
+                                }
 
-                }
-
-            }}
-        >
-            {favorite ? "♥" : "♡"}
-        </button>
-    )}
-
-</div>
-
-        
-
-
-            <iframe
-                ref={iframeRef}
-                className="movie-player"
-                src={playerUrl}
-                frameBorder="0"
-                allowFullScreen
-                allow="encrypted-media"
-                title="Movie Player"
-            />
-
-
-            <div className="controls">
-
-                <div className="control">
-
-                    <label>
-                        Provider
-                    </label>
-
-
-                    <select
-                        value={selectedProvider}
-                        onChange={(e) =>
-                            setSelectedProvider(
-                                e.target.value
-                            )
-                        }
-                    >
-
-                        {Object.keys(providers).map(
-                            (key) => (
-
-                                <option
-                                    key={key}
-                                    value={key}
-                                >
-                                    {providers[key].name}
-                                </option>
-
-                            )
-                        )}
-
-                    </select>
+                            }}
+                        >
+                            {favorite ? "♥" : "♡"}
+                        </button>
+                    )}
 
                 </div>
 
+                <iframe
+                    ref={iframeRef}
+                    className="movie-player"
+                    src={playerUrl}
+                    frameBorder="0"
+                    allowFullScreen
+                    allow="encrypted-media"
+                    title="Movie Player"
+                />
+
+                <div className="controls">
+
+                    <div className="control">
+
+                        <label>
+                            Provider
+                        </label>
+
+                        <select
+                            value={selectedProvider}
+                            onChange={(e) =>
+                                setSelectedProvider(
+                                    e.target.value
+                                )
+                            }
+                        >
+
+                            {Object.keys(providers).map(
+                                (key) => (
+
+                                    <option
+                                        key={key}
+                                        value={key}
+                                    >
+                                        {providers[key].name}
+                                    </option>
+
+                                )
+                            )}
+                        </select>
+
+                    </div>
+
+                </div>
             </div>
-
-        </div>
-
+            {/* ================================
+                Recommended for You
+            ================================= */}
+            <div className="recommendations">
+                <h2>Recommended for You</h2>
+                <div className="recommendations-list">
+                    {recommendations.length > 0 ? (
+                        recommendations.map((movie) => (
+                            <MovieCard key={movie.id} movie={movie} />
+                        ))
+                    ) : (
+                        <p>Loading recommendations...</p>
+                    )}
+                </div>
+            </div>
+        </>
     );
-
 }
 
 export default MovieDetails;

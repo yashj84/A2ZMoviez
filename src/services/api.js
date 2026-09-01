@@ -149,3 +149,21 @@ export const getMovieTrailer = async (id) => {
             video.type === "Trailer"
     );
 };
+
+export const getMovieRecommendations = async (id) => {
+    const response = await fetch(
+        `${BASE_URL}/movie/${id}/recommendations?api_key=${API_KEY}`
+    );
+
+    const data = await response.json();
+    return data.results;
+};
+
+export const getTVRecommendations = async (id) => {
+    const response = await fetch(
+        `${BASE_URL}/tv/${id}/recommendations?api_key=${API_KEY}`
+    );
+
+    const data = await response.json();
+    return data.results;
+};

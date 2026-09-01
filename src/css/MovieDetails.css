@@ -293,3 +293,58 @@
 
     color: #ff4757;
 }
+
+/* Recommendations Section */
+.recommendations {
+    margin-top: 40px;
+}
+
+.recommendations h2 {
+    text-align: center;
+    color: #b3b3b3;
+    margin-bottom: 25px;
+    font-weight: 400;
+    font-size: 2rem;
+}
+
+.recommendations-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    padding: 25px 0;
+}
+
+.recommendations-list .Movie-card {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.recommendations-list .Movie-card:hover {
+    transform: scale(1.1);
+}
+
+.recommendations-list p {
+    text-align: center;
+    color: #cfcfcf;
+    padding: 20px;
+    grid-column: 1 / -1;
+}
+
+/* Responsive adjustments for recommendations */
+@media(max-width:768px){
+    .recommendations h2 {
+        font-size: 1.7rem;
+    }
+
+    .recommendations-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .recommendations-list .Movie-card {
+        transform: scale(1.0);
+    }
+
+    .recommendations-list .Movie-card:hover {
+        transform: scale(1.05);
+    }
+}
